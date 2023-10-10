@@ -1,0 +1,11 @@
+
+mark = [0, 0, 0, 0, 0], [0, 0, 0]
+print(len[mark[1]])
+for i in range(len(mark[0])):
+    mark[0][i] = i
+
+    
+    for j in range(len(mark[1])):
+
+        mark[1] = input(f'please input test {j + 1} scores for student {i + 1}: ')
+print(f'The average score is: {(mark[0][])}')
