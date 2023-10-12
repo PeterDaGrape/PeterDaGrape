@@ -7,6 +7,16 @@ pygame.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((w, h))
 
+
+class static_force:
+    def __init__(self, index, radius, x, y):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.index = index
+
+        self.mass = (math.pi * (radius ** 2)) * density
+
 class object:
     def __init__(self, index, radius, x, y, fx, fy):
         self.x = x
@@ -99,18 +109,18 @@ density = 10000000000
 objects = []
 
 
-obj1 = object(0, 40, w / 4, h / 2, 0, -10000)
-obj2 = object(1, 40, 3*w / 4, h / 2, 0, 10000)
-obj3 = object(3, 10, w / 2, 7 * h / 8, 0, -1000)
-obj4 = object(4, 10, w / 2, 1 * h / 8, 0, 1000)
 
 
 
 
-objects.append(obj1)
-objects.append(obj2)
-objects.append(obj3)
-objects.append(obj4)
+
+objects.append(static_force(-1, 60, w / 2, h / 2))
+
+
+
+
+
+
 
 
 
@@ -120,6 +130,12 @@ while True:
 
     for event in pygame.event.get():
 
+
+        if event.type == pygame.MOUSEBUTTONUP:
+            pos = pygame.mouse.get_pos()
+
+            objects.append(object(len(objects), 20, pos[0], pos[1], 0, 0))
+
         if event.type == pygame.QUIT:
             pygame.quit()
 
@@ -128,10 +144,12 @@ while True:
                 pygame.quit()
 
     for obj in objects:
-        pygame.draw.circle(screen, (255, 255, 255), (obj.x, obj.y), obj.radius)
-        pygame.draw.line(screen, (255, 255, 255), (obj.x, obj.y), ((obj.x + (obj.fx / density)), (obj.y + (obj.fy / density))))
 
-        obj.resultant(objects)
+        pygame.draw.circle(screen, (255, 255, 255), (obj.x, obj.y), obj.radius)
+        if obj.index >= 0:
+            pygame.draw.line(screen, (255, 255, 255), (obj.x, obj.y), ((obj.x + (obj.fx / density)), (obj.y + (obj.fy / density))))
+
+            obj.resultant(objects)
 
 
 
