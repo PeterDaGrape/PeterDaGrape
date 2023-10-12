@@ -114,7 +114,7 @@ objects = []
 
 
 
-objects.append(static_force(-1, 60, w / 2, h / 2))
+#objects.append(static_force(-1, 10, w / 2, h / 2))
 
 
 
@@ -125,17 +125,26 @@ objects.append(static_force(-1, 60, w / 2, h / 2))
 
 
 
-
+drawing = False
 while True:
 
     for event in pygame.event.get():
 
 
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            startpos = pygame.mouse.get_pos()
+            new_object = object(len(objects), 2, startpos[0], startpos[1], 0, 0)
+            drawing = True
+        
+
         if event.type == pygame.MOUSEBUTTONUP:
-            pos = pygame.mouse.get_pos()
+            endpos = pygame.mouse.get_pos()
+            new_object.fx = (startpos[0] - endpos[0]) * (new_object.mass / 50)
+            new_object.fy = (startpos[1] - endpos[1]) * (new_object.mass / 50)
 
-            objects.append(object(len(objects), 20, pos[0], pos[1], 0, 0))
-
+            objects.append(new_object)
+            drawing = False
         if event.type == pygame.QUIT:
             pygame.quit()
 
@@ -150,6 +159,11 @@ while True:
             pygame.draw.line(screen, (255, 255, 255), (obj.x, obj.y), ((obj.x + (obj.fx / density)), (obj.y + (obj.fy / density))))
 
             obj.resultant(objects)
+
+    if drawing:
+        location = pygame.mouse.get_pos()
+        pygame.draw.line(screen, (255, 255, 255), (new_object.x, new_object.y), (location[0], location[1]))
+        pygame.draw.circle(screen, (255, 255, 255), (new_object.x, new_object.y), new_object.radius)
 
 
 
