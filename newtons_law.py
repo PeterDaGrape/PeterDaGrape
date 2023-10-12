@@ -1,7 +1,7 @@
 import math
 import pygame
 import random
-w, h = 800, 800
+w, h = 1400, 800
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -114,10 +114,18 @@ objects = []
 
 
 
-#objects.append(static_force(-1, 10, w / 2, h / 2))
+objects.append(static_force(-1, 30, w / 4, h / 2))
+objects.append(static_force(-1, 30, 3 * w / 4, h / 2))
+objects.append(object(0, 5, w / 2, 3 * h / 4, 0, 0))
 
 
+'''
+objects.append(static_force(-1, 10, w / 2, h / 2))
 
+
+for i in range(0):
+    objects.append(object(i, 1, random.randint(0, w), random.randint(0, h), 0, 0))
+'''
 
 
 
@@ -134,7 +142,7 @@ while True:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             startpos = pygame.mouse.get_pos()
-            new_object = object(len(objects), 2, startpos[0], startpos[1], 0, 0)
+            new_object = object(len(objects), 5, startpos[0], startpos[1], 0, 0)
             drawing = True
         
 
