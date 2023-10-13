@@ -8,27 +8,18 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode((w, h))
 
 
-class static_force:
-    def __init__(self, index, radius, x, y):
-        self.x = x
-        self.y = y
-        self.radius = radius
-        self.index = index
 
-        self.mass = (math.pi * (radius ** 2)) * density
 
 class object:
-    def __init__(self, index, radius, x, y, fx, fy):
+    def __init__(self, index, type, radius, x, y, fx, fy):
         self.x = x
         self.y = y
         self.radius = radius
         self.mass = (math.pi * (radius ** 2)) * density
-
+        self.type = type
         self.index = index
-
         self.vx = 0
         self.vy = 0
-
         self.ax = 0
         self.ay = 0
 
@@ -37,23 +28,30 @@ class object:
         
 
     def resultant(self, objects):
+
+        if self.type == 'static':
+            return 0
+
         self.move()
 
         self.fx = 0
         self.fy = 0
+
         for object in objects:
 
-            
 
             if self.index == object.index:
                 continue
             self.on_collision = collision(self, object)
-            
-
-                
+         
             try:
                 force = -(constant * self.mass * object.mass) / (math.sqrt(((self.x - object.x) ** 2) + ((self.y - object.y) ** 2))) ** 2
             except:
+
+                force = 0
+
+
+            if self.on_collision:
                 force = 0
             bearing = math.atan2((self.x - object.x), (self.y - object.y))
      
@@ -72,19 +70,6 @@ class object:
 
         self.x += self.vx
         self.y += self.vy
-        '''
-        if self.x > w:
-            self.x = 0
-        if self.y > h:
-            self.y = 0
-        if self.x < 0:
-            self.x = w
-        if self.y < 0:
-            self.y = h
-        '''
-
-        
-
 
 def collision(obj1, obj2):
 
@@ -109,25 +94,9 @@ density = 10000000000
 objects = []
 
 
-
-
-
-
-
-objects.append(static_force(-1, 30, w / 4, h / 2))
-objects.append(static_force(-1, 30, 3 * w / 4, h / 2))
-objects.append(object(0, 5, w / 2, 3 * h / 4, 0, 0))
-
-
-'''
-objects.append(static_force(-1, 10, w / 2, h / 2))
-
-
-for i in range(0):
-    objects.append(object(i, 1, random.randint(0, w), random.randint(0, h), 0, 0))
-'''
-
-
+objects.append(object(-1, 'static', 50, 3 * w / 4,  h / 2, 0, 0))
+objects.append(object(-2, 'static', 50, w / 4,  h / 2, 0, 0))
+objects.append(object(0, 'dynamic', 10, w / 2,  3 * h / 4, 0, 0))
 
 
 
@@ -142,7 +111,7 @@ while True:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             startpos = pygame.mouse.get_pos()
-            new_object = object(len(objects), 5, startpos[0], startpos[1], 0, 0)
+            new_object = object(len(objects), 'dynamic', 15, startpos[0], startpos[1], 0, 0)
             drawing = True
         
 
