@@ -6,13 +6,8 @@ import pygame_widgets
 from pygame_widgets.slider import Slider
 from pygame_widgets.textbox import TextBox
 
-
-
 w = 1400
 h = 800
-
-
-
 
 def draw_recursive(recursive_depth, length, length_ratio, angle, angle_change, start_x, start_y):
 
@@ -21,8 +16,6 @@ def draw_recursive(recursive_depth, length, length_ratio, angle, angle_change, s
         return recursive_depth
     if recursive_depth >= max_recursion:
         return recursive_depth
-
-
 
     stop_x = start_x + math.sin(angle) * length
     stop_y = start_y + math.cos(angle) * length
@@ -37,10 +30,7 @@ start_angle = math.pi /2
 
 start_length = h / 4
 
-
-
 max_recursion = 16
-
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -52,8 +42,6 @@ def show_image(image):
     data = image.tobytes()
 
     return pygame.image.fromstring(data, size, mode)
-
-
 
 angle_slider = Slider(screen, 0, 100, w, 20, min=0, max=180, step=1)
 angle_output = TextBox(screen, 475, 160, 100, 40, fontSize=30)
@@ -75,7 +63,6 @@ def call_recursion():
 
     return (level1 + level2) / 2
 
-
 while True:
     events = pygame.event.get()
     for event in events:
@@ -90,28 +77,16 @@ while True:
     angle_output.setText(angle_slider.getValue())
     ratio_output.setText(ratio_slider.getValue())
 
-
-
-
     length_ratio = ratio_slider.getValue()
     angle_change = math.radians(angle_slider.getValue())
 
-
-
     depth = call_recursion()
-
-
 
     recursion_output.setText(int(depth))
 
-
-
-
     screen.blit(source=show_image(image), dest=(0,0))
-
 
     pygame_widgets.update(events)
     pygame.display.update()
-
 
     clock.tick(60)
