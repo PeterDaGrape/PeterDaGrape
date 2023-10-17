@@ -8,7 +8,7 @@ num_agents = 10000
 frame_rate = 60
 speed_var = 0
 resolution = (2560, 1600)
-downscale = 2
+downscale = 4
 speed = 1
 
 species = [(0, 0, 255), 
@@ -17,6 +17,9 @@ species = [(0, 0, 255),
            (255, 0, 0), 
            (255, 0, 255), 
            (255, 255, 0)]
+
+
+species = [(255, 255, 255)]
 
 
 
