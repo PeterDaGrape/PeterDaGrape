@@ -47,7 +47,7 @@ angle_slider = Slider(screen, 0, 100, w, 20, min=0, max=180, step=1)
 angle_output = TextBox(screen, 475, 160, 100, 40, fontSize=30)
 
 
-ratio_slider = Slider(screen, 0, 80, w, 20, min=0, max=1, step=0.001)
+ratio_slider = Slider(screen, 0, 80, w, 20, min=0, max=1.001, step=0.001)
 ratio_output = TextBox(screen, 475, 200, 100, 40, fontSize=30)
 
 recursion_output = TextBox(screen, 100, 130, 100, 40, fontSize=30)

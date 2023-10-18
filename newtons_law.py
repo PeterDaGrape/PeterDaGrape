@@ -17,6 +17,9 @@ class object:
         self.y = y
         self.radius = radius
         self.mass = (math.pi * (radius ** 2)) * density
+
+        #self.mass = (4 / 3) * (math.pi * (radius ^ 3)) * density
+
         self.type = type
         self.index = index
         self.vx = 0
@@ -50,9 +53,10 @@ class object:
             except:
 
                 force = 0
-
+            '''
             if self.on_collision:
                 force *= -1
+            '''
             bearing = math.atan2((self.x - object.x), (self.y - object.y))
      
             self.fx += math.sin(bearing) * force
@@ -88,9 +92,9 @@ density = 10000000000
 
 objects = []
 
-objects.append(object(-1, 'static', 50, 3 * w / 4,  h / 2, 0, 0))
-objects.append(object(-2, 'static', 50, w / 4,  h / 2, 0, 0))
-objects.append(object(0, 'dynamic', 10, w / 2,  3 * h / 4, 0, 0))
+objects.append(object(0 , 'dynamic', 50, 2 * w / 4,  h / 2, 0, 0))
+#objects.append(object(-2, 'static', 50, w / 4,  h / 2, 0, 0))
+#objects.append(object(0, 'dynamic', 10, w / 2,  3 * h / 4, 0, 0))
 
 drawing = False
 '''
