@@ -18,8 +18,6 @@ from PIL import Image,ImageDraw,ImageFont, ImageOps
 import threading
 
 
-
-
 w = 250
 h = 122
 
@@ -96,40 +94,52 @@ def get_time(format):
 class UI:
     def __init__(self, current_window):
         self.current_window = current_window
-        self.top_size = 20
         self.font = ImageFont.truetype(fontdir, 10, encoding="unic")
         self.line_height = 10
         self.text_height = 15
+        self.window_h = h - self.line_height
 
-        
+    def refresh_current(self):
+
+        self.window = Image.new('RGB', (w, h))
+
+        self.draw = ImageDraw.Draw(self.window)
+
+        ui.core()
+
+        if self.current_window == 'Main Menu':
+            self.Main_Menu()
+        if self.current_window == 'Clock':
+            self.clock()
+        if self.current_window == 'Alarm':
+            ui.alarm()
+
     def core(self):
-        global window, update_required
-        window = Image.new('RGB', (w, h))
-        draw = ImageDraw.Draw(window)       
+        global update_required
         
         #top bar and menu name
-        draw.line((0, self.line_height, w, self.line_height), fill=(255,255,255), width=1)
-        draw.text(text = self.current_window, xy = (w / 2, 0), anchor='mt', font = self.font)
+        self.draw.line((0, self.line_height, w, self.line_height), fill=(255,255,255), width=1)
+        self.draw.text(text = self.current_window, xy = (w / 2, 0), anchor='mt', font = self.font)
         
-        draw.text(text = 'Back', xy = (3, 1), anchor='lt', font = self.font)
+        self.draw.text(text = 'Back', xy = (3, 1), anchor='lt', font = self.font)
 
         
         
-        if touch_y > h - self.top_size and touch_y >= 0:
+        if touch_y > h - self.line_height and touch_y >= 0:
             print('Back')
             self.current_window = 'Main Menu'
+
+            ui.Main_Menu()
             update_required = True
-        
-        
+             
     def Main_Menu(self):
         
         global update_required, window
 
-        draw = ImageDraw.Draw(window)
         
-        draw.line((0, h - self.line_height, w, h - self.line_height), fill=(255,255,255), width=1)
+        self.draw.line((0, h - self.line_height, w, h - self.line_height), fill=(255,255,255), width=1)
               
-        draw.text(text = get_time('%H:%M %d/%m/%y'), xy = (0, h), anchor = 'lb', font = self.font)
+        self.draw.text(text = get_time('%H:%M %d/%m/%y'), xy = (0, h), anchor = 'lb', font = self.font)
         
         num_buttons = 2
         
@@ -140,8 +150,8 @@ class UI:
             y = h / 2
             x = (w / num_buttons * i)
             
-            draw.line((x, self.line_height, x, h - self.line_height), fill=(255,255,255), width=1)
-            draw.line(((i * button_spacing), h - self.text_height - self.line_height, (i + 1 * button_spacing), h - self.text_height - self.line_height), fill=(255,255,255), width=1)
+            self.draw.line((x, self.line_height, x, h - self.line_height), fill=(255,255,255), width=1)
+            self.draw.line(((i * button_spacing), h - self.text_height - self.line_height, (i + 1 * button_spacing), h - self.text_height - self.line_height), fill=(255,255,255), width=1)
             
             button_center_x = (i * button_spacing + (i+1) * button_spacing) / 2
             button_center_y = h - (self.line_height + self.text_height) + self.text_height / 2
@@ -151,11 +161,9 @@ class UI:
             icon_dimension = int(button_spacing / icon_space_ratio)
             
             icon_x = int((i * button_spacing + (i+1) * button_spacing) / 2 - (icon_space_ratio * (icon_dimension / 2)) / icon_space_ratio)
-            icon_y = int(h - (self.line_height + self.text_height + self.top_size + h) / 4) - icon_dimension
-            icon_y = int((self.line_height + self.text_height + self.top_size) /2)
-            
+            icon_y = int(h - (self.line_height + self.text_height + self.line_height + h) / 4) - icon_dimension
+            icon_y = int((self.line_height + self.text_height + self.line_height) /2)
             if i == 0:
-                
                 text = 'Clock'
                 
                 icon = Image.open(os.path.join(icondir, 'clock.png')).resize((icon_dimension, icon_dimension))
@@ -163,61 +171,74 @@ class UI:
                 
                 icon = ImageOps.invert(icon)
                 
-                window.paste(icon,(icon_x, icon_y))
+                self.window.paste(icon,(icon_x, icon_y))
 
-            else:
-                text = ''
-            draw.text(text = text, xy = (button_center_x, button_center_y),  anchor='mm', font = self.font)
-        draw.line((w-1, self.line_height, w-1, h - self.line_height), fill=(255,255,255), width=1)
+            if i == 1:
+                text = 'Alarm'
+
+
+
+
+            self.draw.text(text = text, xy = (button_center_x, button_center_y),  anchor='mm', font = self.font)
+        self.draw.line((w-1, self.line_height, w-1, h - self.line_height), fill=(255,255,255), width=1)
 
         for i in range(num_buttons):
             
-            if (touch_x > i * button_spacing and touch_x < (i+1) * button_spacing) and (touch_y < h - self.line_height and touch_y > self.top_size):
+            if (touch_x > i * button_spacing and touch_x < (i+1) * button_spacing) and (touch_y < h - self.line_height and touch_y > self.line_height):
                 print('Tapped', i)
                 button_tapped = i
                 
                 if button_tapped == 0:
                       
                     self.current_window = 'Clock'
-                    
-                    ui.core()
+
+                
+                if button_tapped == 1:
+
+                    self.current_window = 'Alarm'
+
+
                 
                 update_required = True
                 
             else:
                 button_tapped = -1    
             
-        return window
-                
-    def clock(self):
-        global update_required, window
+    def alarm(self):
 
-        draw = ImageDraw.Draw(window)
+        self.draw.text(text = alarm.alarm_time, xy=(ui.window_h / 2, w / 4), font=alarm.time_font, anchor='mm')
+
+        self.draw.line((w / 2, self.line_height, w / 2, h))
+       
+    def clock(self):
+        global update_required
+
         
         big_font_size = 50
         big_font = ImageFont.truetype(fontdir, big_font_size, encoding="unic")
         
         center_x = w / 2
-        center_y = (h - self.top_size) / 2 + self.top_size
+        center_y = (h - self.line_height) / 2 + self.line_height
 
         date = get_time('%d/%m/%y')
         minute_hours = get_time('%H:%M')
             
-        draw.text(text = minute_hours, xy = (center_x, center_y - big_font_size / 2),  anchor='mm', font = big_font)
-        draw.text(text = date, xy = (center_x, center_y + big_font_size / 2),  anchor='mm', font = big_font)
+        self.draw.text(text = minute_hours, xy = (center_x, center_y - big_font_size / 2),  anchor='mm', font = big_font)
+        self.draw.text(text = date, xy = (center_x, center_y + big_font_size / 2),  anchor='mm', font = big_font)
 
-        return window
-        
-def refresh_current(ui):
-    if ui.current_window == 'Main Menu':
-        ui.Main_Menu()
-    if ui.current_window == 'Clock':
-        ui.clock()
+class Alarm:
+    def __init__(self):
+
+        self.alarm_time = '00:00'
+        self.time_font = ImageFont.truetype(fontdir, 30, encoding="unic")
+        self.alarm_on = False
+
 
 def main():
-    global ui, window, update_required, touch_x, touch_y
-    update_required = True
     
+    global ui, alarm, update_required, touch_x, touch_y
+    update_required = True
+    alarm = Alarm()
     ui = UI('Main Menu')
     t = touch()
     old_touch_x = w
@@ -237,19 +258,17 @@ def main():
             touch_x = -1
             touch_y = -1
         
-        ui.core()
         
-        refresh_current(ui)
+        ui.refresh_current()
       
         if update_required:
             
-            ui.core()
             
-            refresh_current(ui)
+            ui.refresh_current()
             
             print('Update required main')
 
-            update_screen(window)
+            update_screen(ui.window)
             update_required = False
 
 try:
@@ -284,3 +303,4 @@ except KeyboardInterrupt:
     exit()
 
 main()
+
