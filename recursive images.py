@@ -1,6 +1,5 @@
 from PIL import Image,ImageDraw
 import math
-import os
 import pygame
 import pygame_widgets
 from pygame_widgets.slider import Slider
