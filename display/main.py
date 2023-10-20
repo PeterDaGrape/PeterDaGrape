@@ -2,6 +2,10 @@ import sys
 import os
 from datetime import datetime
 
+from pydub import AudioSegment
+from pydub.playback import play
+
+
 libdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')
 if os.path.exists(libdir):
     sys.path.append(libdir)
@@ -17,6 +21,11 @@ import time
 from PIL import Image,ImageDraw,ImageFont, ImageOps
 import threading
 
+os.system('bluetoothctl agent on')
+os.system('bluetoothctl scan on')
+time.sleep(4)
+os.system('bluetoothctl scan off')
+os.system('bluetoothctl connect FC:A8:9A:F3:B2:F7')
 
 w = 250
 h = 122
@@ -30,13 +39,13 @@ class touch:
         self.x = 0
         self.y = 0
 
-
     def touch_daemon() :
         while flag_t == 1 :
             if(gt.digital_read(gt.INT) == 0) :
                 GT_Dev.Touch = 1
             else:
                 GT_Dev.Touch = 0
+    
     def wait_touch(self):
 
         self.old_x = self.x
@@ -52,30 +61,16 @@ class touch:
         print('Tapped', self.x, self.y)
         
         return (self.x, self.y)
-    
-
             
 def update_screen(window):
-    global num_updates, full_update_i
     
     
     inverted_image = ImageOps.invert(window)
-    if num_updates % full_update_i == 0:
-        print('Initializing Full Update')
+    print('Initializing Full Update')
+    epd.init(epd.FULL_UPDATE)
 
-        epd.init(epd.FULL_UPDATE)
-        epd.displayPartBaseImage(epd.getbuffer(inverted_image))
-        epd.init(epd.PART_UPDATE)
-        print('Fully Refresh Finished')
-        
-    else:
-        print('Initializing Quick Update')
-        
-        epd.displayPartial(epd.getbuffer(inverted_image))
-
-        print('Quick Refresh Finished')
-    
-    num_updates += 1
+    epd.displayPartBaseImage(epd.getbuffer(inverted_image))
+    print('Fully Refresh Finished')
 
 def get_time(format):
     global old_time, update_required
@@ -123,7 +118,14 @@ class UI:
         
         self.draw.text(text = 'Back', xy = (3, 1), anchor='lt', font = self.font)
 
-        
+        if alarm.alarm_on:
+            
+            icon_dimensions = 10
+            
+            ringer = Image.open(os.path.join(icondir, 'clock.png')).resize((icon_dimensions, icon_dimensions))
+            ringer = ImageOps.invert(ringer)
+
+            self.window.paste(ringer,(w-icon_dimensions, 0))
         
         if touch_y > h - self.line_height and touch_y >= 0:
             print('Back')
@@ -131,7 +133,7 @@ class UI:
 
             ui.Main_Menu()
             update_required = True
-             
+            
     def Main_Menu(self):
         
         global update_required, window
@@ -170,13 +172,17 @@ class UI:
                 
                 
                 icon = ImageOps.invert(icon)
-                
-                self.window.paste(icon,(icon_x, icon_y))
+            
 
             if i == 1:
                 text = 'Alarm'
 
+                icon = Image.open(os.path.join(icondir, 'ringer.png')).resize((icon_dimension, icon_dimension)).convert('RGB')
+                icon = ImageOps.invert(icon)
+            
+            self.window.paste(icon,(icon_x, icon_y))
 
+ 
 
 
             self.draw.text(text = text, xy = (button_center_x, button_center_y),  anchor='mm', font = self.font)
@@ -204,12 +210,6 @@ class UI:
             else:
                 button_tapped = -1    
             
-    def alarm(self):
-
-        self.draw.text(text = alarm.alarm_time, xy=(ui.window_h / 2, w / 4), font=alarm.time_font, anchor='mm')
-
-        self.draw.line((w / 2, self.line_height, w / 2, h))
-       
     def clock(self):
         global update_required
 
@@ -226,13 +226,116 @@ class UI:
         self.draw.text(text = minute_hours, xy = (center_x, center_y - big_font_size / 2),  anchor='mm', font = big_font)
         self.draw.text(text = date, xy = (center_x, center_y + big_font_size / 2),  anchor='mm', font = big_font)
 
+    def alarm(self):
+
+
+        self.draw.text(text = f'{alarm.alarm_hours:02d}:{alarm.alarm_minutes:02d}', xy=(ui.window_h / 2, w / 4), font=alarm.time_font, anchor='mm')
+
+        self.draw.line((w / 2, self.line_height, w / 2, h))
+
+        triangle_h = 20
+        triangle_w = 30
+
+        arrow_distance = 20
+        button_spacing = 40
+
+
+        self.draw.polygon([((w / 4) + button_spacing / 2 ,  (h / 2) - (arrow_distance + triangle_h)), ((w / 4) + button_spacing / 2  + triangle_w / 2, (h / 2) - (arrow_distance)), ((w / 4) + button_spacing / 2  - triangle_w / 2, (h / 2) - (arrow_distance))]
+                          , fill=(255,255,255))
+        self.draw.polygon([((w / 4) + button_spacing / 2 ,  (h / 2) + (arrow_distance + triangle_h)), ((w / 4) + button_spacing / 2  + triangle_w / 2, (h / 2) + (arrow_distance)), ((w / 4) + button_spacing / 2  - triangle_w / 2, (h / 2) + (arrow_distance))]
+                          , fill=(255,255,255))
+        
+        self.draw.polygon([((w / 4) - button_spacing / 2 ,  (h / 2) - (arrow_distance + triangle_h)), ((w / 4) - button_spacing / 2  + triangle_w / 2, (h / 2) - (arrow_distance)), ((w / 4) - button_spacing / 2  - triangle_w / 2, (h / 2) - (arrow_distance))]
+                          , fill=(255,255,255))
+        self.draw.polygon([((w / 4) - button_spacing / 2 ,  (h / 2) + (arrow_distance + triangle_h)), ((w / 4) - button_spacing / 2  + triangle_w / 2, (h / 2) + (arrow_distance)), ((w / 4) - button_spacing / 2  - triangle_w / 2, (h / 2) + (arrow_distance))]
+                          , fill=(255,255,255))
+        
+        alarm.change_time()
+
+        alarm_font = ImageFont.truetype(fontdir, 25, encoding="unic")
+
+        if alarm.alarm_on:
+
+            self.draw.text(xy = (3 * w / 4, self.window_h / 2) ,text='Alarm is \n Enabled', font = alarm_font, anchor='mm')
+        else:
+            self.draw.text(xy = (3 * w / 4, self.window_h / 2) ,text='Alarm is \n Disabled', font = alarm_font, anchor='mm')
+
+        alarm.toggle_alarm()
+
 class Alarm:
     def __init__(self):
-
-        self.alarm_time = '00:00'
+        
+        self.alarm_path = '/home/pi/Python/display/audio.wav'
+        self.sound = AudioSegment.from_wav(self.alarm_path)
+        self.triggered = False
+        self.alarm_hours = 6
+        self.alarm_minutes = 55
         self.time_font = ImageFont.truetype(fontdir, 30, encoding="unic")
         self.alarm_on = False
 
+    def change_time(self):
+        global update_required
+
+        if touch_x > 0 and touch_y > 0 and update_required != True:
+            if touch_x < w / 2:
+
+                if touch_x < w / 4:
+
+
+                    if touch_y < ui.window_h / 2:
+                        self.alarm_hours -= 1
+                        update_required = True
+                    if touch_y > ui.window_h / 2:
+                        self.alarm_hours += 1
+                        update_required = True
+
+                if touch_x > w / 4:
+
+
+                    if touch_y < ui.window_h / 2:
+                        self.alarm_minutes -= 5
+                        update_required = True
+                    if touch_y > ui.window_h / 2:
+                        self.alarm_minutes += 5
+                        update_required = True
+        if self.alarm_minutes >= 60:
+            self.alarm_minutes -= 60
+        if self.alarm_minutes < 0:
+            self.alarm_minutes += 60        
+        if self.alarm_hours >= 23:
+            self.alarm_hours -= 24
+        if self.alarm_hours < 0:
+            self.alarm_hours += 24
+
+    def toggle_alarm(self):
+        global update_required
+
+        if touch_x > 0 and touch_y > 0 and update_required != True:
+            
+            if touch_x > w / 2:
+                if self.alarm_on:
+                    self.alarm_on = False
+
+                else:
+                    self.alarm_on = True
+                update_required = True
+ 
+    def alarm_trigger(self):
+        
+        cur_minutes = get_time('%M')
+        cur_hour = get_time('%H')
+
+        if int(cur_minutes) == int(self.alarm_minutes):
+            
+            if int(cur_hour) == int(self.alarm_hours):
+                if not self.triggered:
+                    print('Alarm is triggered... ')
+                    self.triggered = True
+
+                    play(self.sound)
+
+        else:
+            self.triggered = False
 
 def main():
     
@@ -260,6 +363,10 @@ def main():
         
         
         ui.refresh_current()
+
+        if alarm.alarm_on:
+            alarm.alarm_trigger()
+            
       
         if update_required:
             
@@ -287,6 +394,7 @@ try:
     old_time = 0
     
     epd.init(epd.FULL_UPDATE)
+    
     gt.GT_Init()
     epd.Clear(0xFF)
     
