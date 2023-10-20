@@ -5,7 +5,6 @@ from datetime import datetime
 from pydub import AudioSegment
 from pydub.playback import play
 
-
 libdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lib')
 if os.path.exists(libdir):
     sys.path.append(libdir)
@@ -13,7 +12,6 @@ if os.path.exists(libdir):
 fontdir = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts'), 'Roboto-Bold.ttf')
 icondir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'icons')
 
-    
 from TP_lib import gt1151
 from TP_lib import epd2in13_V4
 import math
@@ -29,7 +27,6 @@ os.system('bluetoothctl connect FC:A8:9A:F3:B2:F7')
 
 w = 250
 h = 122
-
 
 class touch:
     def __init__(self):
@@ -402,7 +399,7 @@ try:
     touch_thread.setDaemon(True)
     touch_thread.start()
 
-except KeyboardInterrupt:    
+except KeyboardInterrupt:
     flag_t = 0
     epd.sleep()
     time.sleep(2)
@@ -411,4 +408,3 @@ except KeyboardInterrupt:
     exit()
 
 main()
-
