@@ -120,15 +120,23 @@ class UI:
         self.draw.text(text = self.current_window, xy = (w / 2, 0), anchor='mt', font = self.font)
         
         self.draw.text(text = 'Back', xy = (3, 1), anchor='lt', font = self.font)
+        icon_dimensions = 10
+        icon_edge_distance = 0
+
 
         if alarm.alarm_on:
             
-            icon_dimensions = 10
             
             ringer = Image.open(os.path.join(icondir, 'clock.png')).resize((icon_dimensions, icon_dimensions))
             ringer = ImageOps.invert(ringer)
 
-            self.window.paste(ringer,(w-icon_dimensions, 0))
+            self.window.paste(ringer,(w-icon_edge_distance, 0))
+            icon_edge_distance += icon_dimensions
+        
+        if timer.timer_on:
+            icon = Image.open(os.path.join(icondir, 'timer.png')).resize((icon_dimensions, icon_dimensions))
+            #icon = ImageOps.invert(icon)
+            self.window.paste(icon,(w-icon_edge_distance - icon_dimensions, 0))
         
         if touch_y > h - self.line_height and touch_y >= 0:
             print('Back')
@@ -182,7 +190,7 @@ class UI:
                 icon = ImageOps.invert(icon)
             if i == 2:
                 text = 'Timer'
-                icon = Image.open(os.path.join(icondir, 'timer.jpeg')).resize((icon_dimension, icon_dimension)).convert('RGB')
+                icon = Image.open(os.path.join(icondir, 'timer.png')).resize((icon_dimension, icon_dimension)).convert('RGB')
                 icon = ImageOps.invert(icon)
 
 
@@ -301,9 +309,9 @@ class UI:
 
         if timer.timer_on:
 
-            self.draw.text(xy = (3 * w / 4, self.window_h / 2) ,text='Start Timer', font = alarm_font, anchor='mm')
-        else:
             self.draw.text(xy = (3 * w / 4, self.window_h / 2) ,text='Stop Timer', font = alarm_font, anchor='mm')
+        else:
+            self.draw.text(xy = (3 * w / 4, self.window_h / 2) ,text='Start Timer', font = alarm_font, anchor='mm')
 
         timer.toggle_alarm()
 
@@ -405,6 +413,7 @@ class Alarm:
                 update_required = True
  
     def alarm_trigger(self):
+        global update_required
         
         cur_minutes = get_time('%M')
         cur_hour = get_time('%H')
@@ -415,6 +424,9 @@ class Alarm:
                 if not self.triggered:
                     print('Alarm is triggered... ')
                     self.triggered = True
+
+                    ui.current_window = 'Timer'
+                    update_required = True
 
                     play(self.sound)
 
@@ -528,10 +540,10 @@ class Timer:
 
 
                     if touch_y < ui.window_h / 2:
-                        self.timer_mins -= 5
+                        self.timer_mins -= 2
                         update_required = True
                     if touch_y > ui.window_h / 2:
-                        self.timer_mins += 5
+                        self.timer_mins += 2
                         update_required = True
         if self.timer_mins >= 59:
             self.timer_mins = 59
@@ -554,6 +566,8 @@ class Timer:
                     
 
                 else:
+
+                    print('Timer enabled')
                     self.timer_on = True
                     self.trigger_mins = int(get_time('%M')) + self.timer_mins
                     self.trigger_hours = int(get_time('%H')) + self.timer_hours
@@ -562,9 +576,12 @@ class Timer:
                         self.trigger_mins -= 60
                     if self.trigger_hours > 23:
                         self.trigger_hours -= 24
+                    print(f'Timer minutes is {self.trigger_mins} timer hours is {self.trigger_hours} ')
+
                 update_required = True
 
     def timer_trigger(self):
+        global update_required
         
         cur_minutes = get_time('%M')
         cur_hour = get_time('%H')
@@ -575,6 +592,9 @@ class Timer:
                 if not self.triggered:
                     print('Timer is triggered... ')
                     self.triggered = True
+
+                    ui.current_window = 'Timer'
+                    update_required = True
 
                     play(self.sound)
 
