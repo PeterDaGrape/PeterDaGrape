@@ -55,7 +55,8 @@ class object:
                 force = 0
             
             if self.on_collision:
-                force *= -1
+                #force *= -1
+                force = 0
             
             bearing = math.atan2((self.x - object.x), (self.y - object.y))
      

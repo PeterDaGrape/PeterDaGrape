@@ -19,11 +19,6 @@ import time
 from PIL import Image,ImageDraw,ImageFont, ImageOps
 import threading
 
-os.system('bluetoothctl agent on')
-os.system('bluetoothctl scan on')
-time.sleep(4)
-os.system('bluetoothctl scan off')
-os.system('bluetoothctl connect FC:A8:9A:F3:B2:F7')
 
 w = 250
 h = 122
@@ -104,7 +99,9 @@ class UI:
         if self.current_window == 'Clock':
             self.clock()
         if self.current_window == 'Alarm':
-            ui.alarm()
+            self.alarm()
+        if self.current_window == 'Mandelbrot':
+            self.mandelbrot()
 
     def core(self):
         global update_required
@@ -140,7 +137,7 @@ class UI:
               
         self.draw.text(text = get_time('%H:%M %d/%m/%y'), xy = (0, h), anchor = 'lb', font = self.font)
         
-        num_buttons = 2
+        num_buttons = 3
         
         button_spacing = int(w / num_buttons)
         
@@ -176,6 +173,9 @@ class UI:
 
                 icon = Image.open(os.path.join(icondir, 'ringer.png')).resize((icon_dimension, icon_dimension)).convert('RGB')
                 icon = ImageOps.invert(icon)
+            if i == 2:
+                text = 'Mandelbrot'
+
             
             self.window.paste(icon,(icon_x, icon_y))
 
@@ -199,6 +199,9 @@ class UI:
                 if button_tapped == 1:
 
                     self.current_window = 'Alarm'
+                if button_tapped == 2:
+                    self.current_window = 'Mandelbrot'
+                    self.mandelbrot = Mandelbrot()
 
 
                 
@@ -258,6 +261,12 @@ class UI:
             self.draw.text(xy = (3 * w / 4, self.window_h / 2) ,text='Alarm is \n Disabled', font = alarm_font, anchor='mm')
 
         alarm.toggle_alarm()
+
+    def mandelbrot(self):
+
+        set = self.mandelbrot.calculate()
+
+        self.window.paste(set, (0, self.line_height))
 
 class Alarm:
     def __init__(self):
@@ -333,6 +342,78 @@ class Alarm:
 
         else:
             self.triggered = False
+
+class Mandelbrot:
+    def __init__(self):
+        self.w = w
+        self.h = h - ui.line_height
+        
+        
+        self.start_x = -2
+        self.start_y = -1.2
+        self.stop_x = 0.6
+        self.stop_y = 1.2
+
+        self.itermax = 100
+
+        self.stepsize = (self.stop_y - self.start_y) / (self.h)
+    def calculate(self):
+
+        image = Image.new('RGB', (w, h))
+        image_load = image.load()
+
+        print('Calculating...')
+
+        
+        self.stop_x = self.stepsize * w + self.start_x
+        
+        global repeat, percentage
+        percentage = 0
+        repeat = 0
+        
+        xn = 0
+        yn = 0
+        yc = self.start_y
+        xnplus1 = 0
+        ynplus1 = 0
+        imax = 0
+        
+        for ypix in range(h):
+            xc = self.start_x
+            for xpix in range(w):
+                xn = 0
+                yn = 0
+                                    
+                for i in range(self.iter_max):
+                    xnplus1 = xn**2 - yn**2 + xc
+                    ynplus1 = (2 * xn * yn) + yc
+                    xn = xnplus1
+                    yn = ynplus1
+                    if imax < i:
+                        imax = i
+                    if xn*xn + yn*yn > 4:
+                        break
+                    #print(i)
+                #print(i)
+
+                if i < (self.iter_max - 1):
+                    color = int(round(self.iter_max * (math.sqrt(i / self.iter_max))))
+                    color = i * 15 % 255
+
+                else:
+                    color = 0
+                #color = int(255 - (i / itermax) * 255)
+                image_load[xpix, ypix] = (color, color, color)
+                xc = (xc + self.stepsize)
+            
+            yc = (yc + self.stepsize)
+            
+            if not percentage == round((ypix / h) * 100):
+                percentage = round((ypix / h) * 100)
+                if percentage % 10 == 0:
+                    print(percentage)
+
+        return image
 
 def main():
     
