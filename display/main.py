@@ -49,14 +49,11 @@ class touch:
             self.y = GT_Dev.X[0]
             return False
 
-
         print('Tapped', self.x, self.y)
         
         return (self.x, self.y)
             
 def update_screen(window):
-    
-    
     inverted_image = ImageOps.invert(window)
     print('Initializing Full Update')
     epd.init(epd.FULL_UPDATE)
@@ -132,7 +129,6 @@ class UI:
         
         global update_required, window
 
-        
         self.draw.line((0, h - self.line_height, w, h - self.line_height), fill=(255,255,255), width=1)
               
         self.draw.text(text = get_time('%H:%M %d/%m/%y'), xy = (0, h), anchor = 'lb', font = self.font)
@@ -167,7 +163,6 @@ class UI:
                 
                 icon = ImageOps.invert(icon)
             
-
             if i == 1:
                 text = 'Alarm'
 
@@ -178,9 +173,6 @@ class UI:
 
             
             self.window.paste(icon,(icon_x, icon_y))
-
- 
-
 
             self.draw.text(text = text, xy = (button_center_x, button_center_y),  anchor='mm', font = self.font)
         self.draw.line((w-1, self.line_height, w-1, h - self.line_height), fill=(255,255,255), width=1)
@@ -195,7 +187,6 @@ class UI:
                       
                     self.current_window = 'Clock'
 
-                
                 if button_tapped == 1:
 
                     self.current_window = 'Alarm'
@@ -203,8 +194,6 @@ class UI:
                     self.current_window = 'Mandelbrot'
                     self.mandelbrot = Mandelbrot()
 
-
-                
                 update_required = True
                 
             else:
@@ -213,7 +202,6 @@ class UI:
     def clock(self):
         global update_required
 
-        
         big_font_size = 50
         big_font = ImageFont.truetype(fontdir, big_font_size, encoding="unic")
         
@@ -228,7 +216,6 @@ class UI:
 
     def alarm(self):
 
-
         self.draw.text(text = f'{alarm.alarm_hours:02d}:{alarm.alarm_minutes:02d}', xy=(ui.window_h / 2, w / 4), font=alarm.time_font, anchor='mm')
 
         self.draw.line((w / 2, self.line_height, w / 2, h))
@@ -238,7 +225,6 @@ class UI:
 
         arrow_distance = 20
         button_spacing = 40
-
 
         self.draw.polygon([((w / 4) + button_spacing / 2 ,  (h / 2) - (arrow_distance + triangle_h)), ((w / 4) + button_spacing / 2  + triangle_w / 2, (h / 2) - (arrow_distance)), ((w / 4) + button_spacing / 2  - triangle_w / 2, (h / 2) - (arrow_distance))]
                           , fill=(255,255,255))
@@ -286,7 +272,6 @@ class Alarm:
             if touch_x < w / 2:
 
                 if touch_x < w / 4:
-
 
                     if touch_y < ui.window_h / 2:
                         self.alarm_hours -= 1
@@ -364,7 +349,6 @@ class Mandelbrot:
 
         print('Calculating...')
 
-        
         self.stop_x = self.stepsize * w + self.start_x
         
         global repeat, percentage
@@ -439,16 +423,13 @@ def main():
             touch_x = -1
             touch_y = -1
         
-        
         ui.refresh_current()
 
         if alarm.alarm_on:
             alarm.alarm_trigger()
             
-      
         if update_required:
-            
-            
+               
             ui.refresh_current()
             
             print('Update required main')
