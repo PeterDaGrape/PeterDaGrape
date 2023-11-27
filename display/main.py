@@ -62,20 +62,20 @@ def update_screen(window):
     print('Fully Refresh Finished')
 
 def get_time(format):
-    global old_time, update_required
+    global old_minutes, update_required
     now = datetime.now()
     
     the_time = now.strftime(format)
     
     minutes = now.strftime('%M')
-    if old_time != minutes:
+    if old_minutes != minutes:
         print('Time Changed')
         update_required = True
-        old_time = minutes
+        old_minutes = minutes
         
     return the_time
     
-class UI:
+class UI:   
     def __init__(self, current_window):
         self.current_window = current_window
         self.font = ImageFont.truetype(fontdir, 10, encoding="unic")
@@ -450,7 +450,7 @@ try:
     num_updates = 0
     full_update_i = 3
 
-    old_time = 0
+    old_minutes = 0
     
     epd.init(epd.FULL_UPDATE)
     

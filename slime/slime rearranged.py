@@ -18,7 +18,7 @@ agent_speed = 1
 class Agent:
     def __init__(self):
         
-        spawn_radius = int(min(h) * rad_factor / 2)  # Adjust the radius as needed
+        spawn_radius = int(min([h,w]) * rad_factor / 2)  # Adjust the radius as needed
 
         random_circle_x = -1
         random_circle_y = -1

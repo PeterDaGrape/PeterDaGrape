@@ -129,8 +129,6 @@ class Agent:
             
             else:
                 probe_pixel = pixels[probe_position[0]][probe_position[1]]
-                print(probe_pixel)
-    
                 distance = math.sqrt((probe_pixel[0] - self.colour[0])**2 + (probe_pixel[1] - self.colour[1])**2 + (probe_pixel[2] - self.colour[2])**2)
                 score = -distance
 
