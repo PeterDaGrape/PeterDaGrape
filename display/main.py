@@ -83,6 +83,13 @@ class UI:
         self.text_height = 15
         self.window_h = h - self.line_height
 
+        self.triangle_h = 20
+        self.triangle_w = 30
+        
+        self.arrow_distance = 20
+        self.button_spacing = 40
+        
+
     def refresh_current(self):
 
         self.window = Image.new('RGB', (w, h))
@@ -97,8 +104,10 @@ class UI:
             self.clock()
         if self.current_window == 'Alarm':
             self.alarm()
+        if self.current_window == 'Timer':
+            self.timer()
         if self.current_window == 'Mandelbrot':
-            self.mandelbrot()
+            self.mandelbrot_view()
 
     def core(self):
         global update_required
@@ -108,15 +117,23 @@ class UI:
         self.draw.text(text = self.current_window, xy = (w / 2, 0), anchor='mt', font = self.font)
         
         self.draw.text(text = 'Back', xy = (3, 1), anchor='lt', font = self.font)
+        icon_dimensions = 10
+        icon_edge_distance = 0
+
 
         if alarm.alarm_on:
             
-            icon_dimensions = 10
             
             ringer = Image.open(os.path.join(icondir, 'clock.png')).resize((icon_dimensions, icon_dimensions))
             ringer = ImageOps.invert(ringer)
 
-            self.window.paste(ringer,(w-icon_dimensions, 0))
+            self.window.paste(ringer,(w-icon_edge_distance, 0))
+            icon_edge_distance += icon_dimensions
+        
+        if timer.timer_on:
+            icon = Image.open(os.path.join(icondir, 'timer.png')).resize((icon_dimensions, icon_dimensions))
+            #icon = ImageOps.invert(icon)
+            self.window.paste(icon,(w-icon_edge_distance - icon_dimensions, 0))
         
         if touch_y > h - self.line_height and touch_y >= 0:
             print('Back')
@@ -133,13 +150,12 @@ class UI:
               
         self.draw.text(text = get_time('%H:%M %d/%m/%y'), xy = (0, h), anchor = 'lb', font = self.font)
         
-        num_buttons = 3
+        num_buttons = 4
         
         button_spacing = int(w / num_buttons)
         
         for i in range(num_buttons + 1):
             
-            y = h / 2
             x = (w / num_buttons * i)
             
             self.draw.line((x, self.line_height, x, h - self.line_height), fill=(255,255,255), width=1)
@@ -169,7 +185,15 @@ class UI:
                 icon = Image.open(os.path.join(icondir, 'ringer.png')).resize((icon_dimension, icon_dimension)).convert('RGB')
                 icon = ImageOps.invert(icon)
             if i == 2:
+                text = 'Timer'
+                icon = Image.open(os.path.join(icondir, 'timer.png')).resize((icon_dimension, icon_dimension)).convert('RGB')
+                icon = ImageOps.invert(icon)
+
+
+            if i == 3:
                 text = 'Mandelbrot'
+                icon = Image.open(os.path.join(icondir, 'mandelbrot.png')).resize((icon_dimension, icon_dimension)).convert('RGB')
+                icon = ImageOps.invert(icon)
 
             
             self.window.paste(icon,(icon_x, icon_y))
@@ -190,10 +214,19 @@ class UI:
                 if button_tapped == 1:
 
                     self.current_window = 'Alarm'
+
+
                 if button_tapped == 2:
+                    self.current_window = 'Timer'
+
+
+                if button_tapped == 3:
+
                     self.current_window = 'Mandelbrot'
                     self.mandelbrot = Mandelbrot()
 
+
+                
                 update_required = True
                 
             else:
@@ -217,23 +250,19 @@ class UI:
     def alarm(self):
 
         self.draw.text(text = f'{alarm.alarm_hours:02d}:{alarm.alarm_minutes:02d}', xy=(ui.window_h / 2, w / 4), font=alarm.time_font, anchor='mm')
-
         self.draw.line((w / 2, self.line_height, w / 2, h))
 
-        triangle_h = 20
-        triangle_w = 30
+ 
 
-        arrow_distance = 20
-        button_spacing = 40
 
-        self.draw.polygon([((w / 4) + button_spacing / 2 ,  (h / 2) - (arrow_distance + triangle_h)), ((w / 4) + button_spacing / 2  + triangle_w / 2, (h / 2) - (arrow_distance)), ((w / 4) + button_spacing / 2  - triangle_w / 2, (h / 2) - (arrow_distance))]
+        self.draw.polygon([((w / 4) + self.button_spacing / 2 ,  (h / 2) - (self.arrow_distance + self.triangle_h)), ((w / 4) + self.button_spacing / 2  + self.triangle_w / 2, (h / 2) - (self.arrow_distance)), ((w / 4) + self.button_spacing / 2  - self.triangle_w / 2, (h / 2) - (self.arrow_distance))]
                           , fill=(255,255,255))
-        self.draw.polygon([((w / 4) + button_spacing / 2 ,  (h / 2) + (arrow_distance + triangle_h)), ((w / 4) + button_spacing / 2  + triangle_w / 2, (h / 2) + (arrow_distance)), ((w / 4) + button_spacing / 2  - triangle_w / 2, (h / 2) + (arrow_distance))]
+        self.draw.polygon([((w / 4) + self.button_spacing / 2 ,  (h / 2) + (self.arrow_distance + self.triangle_h)), ((w / 4) + self.button_spacing / 2  + self.triangle_w / 2, (h / 2) + (self.arrow_distance)), ((w / 4) + self.button_spacing / 2  - self.triangle_w / 2, (h / 2) + (self.arrow_distance))]
                           , fill=(255,255,255))
         
-        self.draw.polygon([((w / 4) - button_spacing / 2 ,  (h / 2) - (arrow_distance + triangle_h)), ((w / 4) - button_spacing / 2  + triangle_w / 2, (h / 2) - (arrow_distance)), ((w / 4) - button_spacing / 2  - triangle_w / 2, (h / 2) - (arrow_distance))]
+        self.draw.polygon([((w / 4) - self.button_spacing / 2 ,  (h / 2) - (self.arrow_distance + self.triangle_h)), ((w / 4) - self.button_spacing / 2  + self.triangle_w / 2, (h / 2) - (self.arrow_distance)), ((w / 4) - self.button_spacing / 2  - self.triangle_w / 2, (h / 2) - (self.arrow_distance))]
                           , fill=(255,255,255))
-        self.draw.polygon([((w / 4) - button_spacing / 2 ,  (h / 2) + (arrow_distance + triangle_h)), ((w / 4) - button_spacing / 2  + triangle_w / 2, (h / 2) + (arrow_distance)), ((w / 4) - button_spacing / 2  - triangle_w / 2, (h / 2) + (arrow_distance))]
+        self.draw.polygon([((w / 4) - self.button_spacing / 2 ,  (h / 2) + (self.arrow_distance + self.triangle_h)), ((w / 4) - self.button_spacing / 2  + self.triangle_w / 2, (h / 2) + (self.arrow_distance)), ((w / 4) - self.button_spacing / 2  - self.triangle_w / 2, (h / 2) + (self.arrow_distance))]
                           , fill=(255,255,255))
         
         alarm.change_time()
@@ -248,11 +277,73 @@ class UI:
 
         alarm.toggle_alarm()
 
-    def mandelbrot(self):
+    def timer(self):
 
-        set = self.mandelbrot.calculate()
 
-        self.window.paste(set, (0, self.line_height))
+        self.draw.text(text = f'{timer.timer_hours:02d}:{timer.timer_mins:02d}', xy=(ui.window_h / 2, w / 4), font=alarm.time_font, anchor='mm')
+
+        self.draw.line((w / 2, self.line_height, w / 2, h))
+
+        self.draw.polygon([((w / 4) + self.button_spacing / 2 ,  (h / 2) - (self.arrow_distance + self.triangle_h)), ((w / 4) + self.button_spacing / 2  + self.triangle_w / 2, (h / 2) - (self.arrow_distance)), ((w / 4) + self.button_spacing / 2  - self.triangle_w / 2, (h / 2) - (self.arrow_distance))]
+                          , fill=(255,255,255))
+        self.draw.polygon([((w / 4) + self.button_spacing / 2 ,  (h / 2) + (self.arrow_distance + self.triangle_h)), ((w / 4) + self.button_spacing / 2  + self.triangle_w / 2, (h / 2) + (self.arrow_distance)), ((w / 4) + self.button_spacing / 2  - self.triangle_w / 2, (h / 2) + (self.arrow_distance))]
+                          , fill=(255,255,255))
+        
+        self.draw.polygon([((w / 4) - self.button_spacing / 2 ,  (h / 2) - (self.arrow_distance + self.triangle_h)), ((w / 4) - self.button_spacing / 2  + self.triangle_w / 2, (h / 2) - (self.arrow_distance)), ((w / 4) - self.button_spacing / 2  - self.triangle_w / 2, (h / 2) - (self.arrow_distance))]
+                          , fill=(255,255,255))
+        self.draw.polygon([((w / 4) - self.button_spacing / 2 ,  (h / 2) + (self.arrow_distance + self.triangle_h)), ((w / 4) - self.button_spacing / 2  + self.triangle_w / 2, (h / 2) + (self.arrow_distance)), ((w / 4) - self.button_spacing / 2  - self.triangle_w / 2, (h / 2) + (self.arrow_distance))]
+                          , fill=(255,255,255))
+        
+        timer.change_time()
+
+        alarm_font = ImageFont.truetype(fontdir, 25, encoding="unic")
+
+        if timer.timer_on:
+
+            self.draw.text(xy = (3 * w / 4, self.window_h / 2) ,text='Stop Timer', font = alarm_font, anchor='mm')
+        else:
+            self.draw.text(xy = (3 * w / 4, self.window_h / 2) ,text='Start Timer', font = alarm_font, anchor='mm')
+
+        timer.toggle_alarm()
+
+    def mandelbrot_view(self):
+
+        global update_required
+
+        if touch_x > 0 and touch_y > 0 and update_required != True:
+
+            print(touch_x, touch_y)
+            print('recalculating')
+            cptapx = ((self.mandelbrot.stepsize * (touch_x)) + self.mandelbrot.start_x)
+            cptapy = ((self.mandelbrot.stepsize * (self.mandelbrot.h - touch_y)) + self.mandelbrot.start_y)
+
+
+            self.mandelbrot.stepsize = self.mandelbrot.stepsize / self.mandelbrot.zoomfactor
+            
+            
+            self.mandelbrot.start_x = cptapx - (self.mandelbrot.stepsize * self.mandelbrot.w/2)
+            self.mandelbrot.stop_x = cptapx + (self.mandelbrot.stepsize * self.mandelbrot.w/2)
+            self.mandelbrot.start_y = cptapy - (self.mandelbrot.stepsize * self.mandelbrot.h/2)
+            self.mandelbrot.stop_y = cptapy + (self.mandelbrot.stepsize * self.mandelbrot.h/2)
+
+            self.mandelbrot.image_index += 1
+
+        if self.mandelbrot.image_index != self.mandelbrot.old_index:
+
+
+            self.set = self.mandelbrot.calculate()
+            print('calculated')
+
+            self.set = ImageOps.invert(self.set)
+            update_required = True
+
+            self.mandelbrot.old_index = self.mandelbrot.image_index
+            print('pasted, refreshing')
+
+        
+
+
+        self.window.paste(self.set, (0, self.line_height))
 
 class Alarm:
     def __init__(self):
@@ -289,7 +380,7 @@ class Alarm:
                     if touch_y > ui.window_h / 2:
                         self.alarm_minutes += 5
                         update_required = True
-        if self.alarm_minutes >= 60:
+        if self.alarm_minutes >= 59:
             self.alarm_minutes -= 60
         if self.alarm_minutes < 0:
             self.alarm_minutes += 60        
@@ -312,6 +403,7 @@ class Alarm:
                 update_required = True
  
     def alarm_trigger(self):
+        global update_required
         
         cur_minutes = get_time('%M')
         cur_hour = get_time('%H')
@@ -322,6 +414,177 @@ class Alarm:
                 if not self.triggered:
                     print('Alarm is triggered... ')
                     self.triggered = True
+
+                    ui.current_window = 'Timer'
+                    update_required = True
+
+                    play(self.sound)
+
+        else:
+            self.triggered = False
+
+class Mandelbrot:
+    def __init__(self):
+        self.w = w
+        self.h = h - ui.line_height
+        self.old_index = -1
+        self.image_index = 0
+        
+        self.zoomfactor = 2
+
+        self.start_x = -2
+        self.start_y = -1.2
+        self.stop_x = 0.6
+        self.stop_y = 1.2
+
+        self.iter_max = 50
+
+        self.stepsize = (self.stop_y - self.start_y) / (self.h)
+    def calculate(self):
+
+        image = Image.new('RGB', (w, h))
+        image_load = image.load()
+
+        print('Calculating...')
+
+        
+        self.stop_x = self.stepsize * w + self.start_x
+        
+        global repeat, percentage
+        percentage = 0
+        repeat = 0
+        
+        xn = 0
+        yn = 0
+        yc = self.start_y
+        xnplus1 = 0
+        ynplus1 = 0
+        imax = 0
+        
+        for ypix in range(h):
+            xc = self.start_x
+            for xpix in range(w):
+                xn = 0
+                yn = 0
+                                    
+                for i in range(self.iter_max):
+                    xnplus1 = xn**2 - yn**2 + xc
+                    ynplus1 = (2 * xn * yn) + yc
+                    xn = xnplus1
+                    yn = ynplus1
+                    if imax < i:
+                        imax = i
+                    if xn*xn + yn*yn > 4:
+                        break
+                    #print(i)
+                #print(i)
+
+                if i < (self.iter_max - 1):
+                    color = int(round(self.iter_max * (math.sqrt(i / self.iter_max))))
+                    color = i * 15 % 255
+
+                else:
+                    color = 0
+                #color = int(255 - (i / itermax) * 255)
+                image_load[xpix, ypix] = (color, color, color)
+                xc = (xc + self.stepsize)
+            
+            yc = (yc + self.stepsize)
+            
+            if not percentage == round((ypix / h) * 100):
+                percentage = round((ypix / h) * 100)
+                if percentage % 5 == 0:
+                    print(f'{percentage}%')
+        print(f'100%')
+
+        return image
+
+class Timer:
+    def __init__(self):
+        self.alarm_path = '/home/pi/Python/display/audio.wav'
+        self.sound = AudioSegment.from_wav(self.alarm_path)
+        self.triggered = False
+        self.timer_mins = 0
+        self.timer_hours = 0
+        self.trigger_mins = 0
+        self.trigger_hours = 0
+        self.time_font = ImageFont.truetype(fontdir, 30, encoding="unic")
+        self.timer_on = False
+    def change_time(self):
+        global update_required
+
+        if touch_x > 0 and touch_y > 0 and update_required != True:
+            if touch_x < w / 2:
+
+                if touch_x < w / 4:
+
+
+                    if touch_y < ui.window_h / 2:
+                        self.timer_hours -= 1
+                        update_required = True
+                    if touch_y > ui.window_h / 2:
+                        self.timer_hours += 1
+                        update_required = True
+
+                if touch_x > w / 4:
+
+
+                    if touch_y < ui.window_h / 2:
+                        self.timer_mins -= 2
+                        update_required = True
+                    if touch_y > ui.window_h / 2:
+                        self.timer_mins += 2
+                        update_required = True
+        if self.timer_mins >= 59:
+            self.timer_mins = 59
+        if self.timer_mins < 0:
+            self.timer_mins = 0
+        if self.timer_hours >= 23:
+            self.timer_hours = 23
+        if self.timer_hours < 0:
+            self.timer_hours = 0
+
+    def toggle_alarm(self):
+        global update_required
+
+        if touch_x > 0 and touch_y > 0 and update_required != True:
+            
+            if touch_x > w / 2:
+                if self.timer_on:
+                    self.timer_on = False
+
+                    
+
+                else:
+
+                    print('Timer enabled')
+                    self.timer_on = True
+                    self.trigger_mins = int(get_time('%M')) + self.timer_mins
+                    self.trigger_hours = int(get_time('%H')) + self.timer_hours
+
+                    if self.trigger_mins > 59:
+                        self.trigger_mins -= 60
+                    if self.trigger_hours > 23:
+                        self.trigger_hours -= 24
+                    print(f'Timer minutes is {self.trigger_mins} timer hours is {self.trigger_hours} ')
+
+                update_required = True
+
+    def timer_trigger(self):
+        global update_required
+        
+        cur_minutes = get_time('%M')
+        cur_hour = get_time('%H')
+
+        if int(cur_minutes) == int(self.timer_mins):
+            
+            if int(cur_hour) == int(self.timer_hours):
+                if not self.triggered:
+                    print('Timer is triggered... ')
+                    self.triggered = True
+
+                    ui.current_window = 'Timer'
+                    update_required = True
 
                     play(self.sound)
 
@@ -401,9 +664,10 @@ class Mandelbrot:
 
 def main():
     
-    global ui, alarm, update_required, touch_x, touch_y
+    global ui, alarm, timer, update_required, touch_x, touch_y
     update_required = True
     alarm = Alarm()
+    timer = Timer()
     ui = UI('Main Menu')
     t = touch()
     old_touch_x = w
@@ -427,7 +691,11 @@ def main():
 
         if alarm.alarm_on:
             alarm.alarm_trigger()
+
+        if timer.timer_on:
+            timer.timer_trigger()
             
+      
         if update_required:
                
             ui.refresh_current()

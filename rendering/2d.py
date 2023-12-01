@@ -144,7 +144,7 @@ class Camera():
 
 
 
-camera = Camera((0, 0), 0, 360, 100, 8)
+camera = Camera((0, 0), 0, 80, 100, 8)
 object = Object('square', ((2, 2), (3, 2), (3, 3), (2, 3)))
 
 objects = [Object('line', ((1, 7), (-5, 6))), object]
