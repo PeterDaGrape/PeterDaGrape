@@ -4,7 +4,7 @@ import math
 from PIL import Image
 import os
 
-num_agents = 10000
+num_agents = 10
 frame_rate = 60
 speed_var = 0
 resolution = (2560, 1600)
@@ -131,6 +131,7 @@ def brain(position, angle, pixels, colour):
    
             distance = math.sqrt((probe_pixel[0] - colour[0])**2 + (probe_pixel[1] - colour[1])**2 + (probe_pixel[2] - colour[2])**2)
             score = -distance
+        print(score)
 
         scent_strengths.append(score)
     probe_forward = scent_strengths[0]

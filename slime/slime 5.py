@@ -4,7 +4,7 @@ import math
 from PIL import Image
 import os
 
-num_agents = 10000
+num_agents = 1000
 frame_rate = 60
 speed_var = 0
 w = 2560
@@ -56,10 +56,12 @@ def save_file(pixels, image_index):
     image_index += 1
 
 
+
+
 class Agent:
     def __init__(self):
         
-        spawn_radius = int(h * rad_factor / 2)  # Adjust the radius as needed
+        spawn_radius = int(h * rad_factor / 2)  
 
         random_circle_x = random.randint(-spawn_radius, spawn_radius)
         random_circle_y = random.randint(-spawn_radius, spawn_radius)
@@ -82,8 +84,8 @@ class Agent:
     
     def update(self):
         self.collision()
-        self.move()
         self.brain()
+        self.move()
 
     def move(self):
 
@@ -94,28 +96,20 @@ class Agent:
         self.y -= self.vel_y
     
     def collision(self):
-        update = True
 
         
         if self.x > w:
             self.x = w - 1
-            angle = random.randint(180, 360)
+            self.agent_angle = math.radians(random.randint(180, 360))
         elif self.x < 0:
             self.x = 1
-            angle = random.randint(0, 180)
+            self.agent_angle = math.radians(random.randint(0, 180))
         elif self.y > h:
             self.y = h - 1
-            angle = random.randint(270, 450)
+            self.agent_angle = math.radians(random.randint(270, 450))
         elif self.y < 0:
             self.y = 1
-            angle = random.randint(90, 270)
-        else:
-            update = False
-
-        if update:
-            if angle >= 360:
-                angle -= 360
-            self.agent_angle = math.radians(angle)
+            self.agent_angle = math.radians(random.randint(90, 270))
 
     def brain(self):
         global pixels
@@ -132,19 +126,22 @@ class Agent:
                 distance = math.sqrt((probe_pixel[0] - self.colour[0])**2 + (probe_pixel[1] - self.colour[1])**2 + (probe_pixel[2] - self.colour[2])**2)
                 score = -distance
 
+
             scent_strengths.append(score)
         probe_forward = scent_strengths[0]
         probe_left = scent_strengths[1]
         probe_right = scent_strengths[2]
 
+
         if probe_forward < probe_left and probe_forward < probe_right:
             self.agent_angle += (random.random() - 0.5) * 2 * max_turn
         elif probe_left > probe_right:
+
             self.agent_angle -= random.random() * max_turn
         elif probe_left < probe_right:
 
             self.agent_angle += random.random() * max_turn
-
+        
 def screen_refresh(agents):
     global pixels
     if not fallback and render:
@@ -191,7 +188,6 @@ def agent_create(num_agents):
     for _ in range(num_agents):
         agents.append(Agent())
     return agents
-
 
 def main():
     global pixels

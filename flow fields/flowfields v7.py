@@ -9,17 +9,17 @@ import time
 
 downscale = 1
 
-width = 1400
-height = 800
+width = 2560
+height = 1600
 
-num_particles = 10000
-max_magnitude = 0.1
-vector_spacing = 20
+num_particles = 100000
+max_magnitude = 1
+vector_spacing = 2
 max_speed = 1
 start_speed = 1
 
 fullscreen = False
-show_vectors = True
+show_vectors = False
 show_particles = True
 clear_mode = False
 render_enable = True
@@ -28,14 +28,13 @@ request_seed = False
 
 brightness_multiplier = 1
 
-wrap_mode = True
+wrap_mode = False
 
-save = False
+save = True
 
 verbose_print = False
 
-time_out = False
-frame_repeat = 250
+
 
 pixel_strength = 0.05
 
@@ -43,18 +42,16 @@ pixel_strength = 0.05
 path = '/Users/petervine/Desktop/frames'
 
 vector_display_mult = 150
-vector_display_intensity = 50
+display_alpha = 40
 
 octaves = 1.5
 if request_seed:
     print('Please enter seed, otherwise press enter:' )
-    seed = input()
+    seed = float(input())
 else:
-    seed = ''
-if seed == '':
     seed = round(random.random(), 5)
-else:
-    seed = float(seed)
+
+
 
 print('Seed used is:- ', seed)
 
@@ -67,9 +64,7 @@ class vector:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        
-
-
+    
         random_value = noise([self.x / w, self.y / h])
 
         angle = random_value * math.pi * 2
@@ -77,7 +72,9 @@ class vector:
         self.vector_y = math.cos(angle) * max_magnitude
 
 class particle:
-    def __init__(self, x, y):
+    def __init__(self, x, y, index):
+
+        self.index = index
         self.x = x
         self.y = y
         
@@ -129,9 +126,8 @@ class particle:
 
 def update_particles():
     for p in particles:
-        if not p.alive:
-            continue
-        
+
+
         if p.x > w:
             if not wrap_mode:
                 p.alive = False
@@ -148,13 +144,42 @@ def update_particles():
             if not wrap_mode:
                 p.alive = False
             p.y = h
+        if not p.alive:
+
+            replace_dead(p.index)
+            continue
         p.update()
 
+def replace_dead(index):
+    global particles
+    particles[index] = particle(random.randint(0, w), random.randint(0,h), index)
 
 def main():
     global seed
-    setup()
+    global screen 
+    global clock
+    global framerate
+    global noise
+    global image_index
+    global pixels 
 
+    framerate = 60
+
+    if render_enable:
+        pygame.init()
+        clock = pygame.time.Clock()
+        if fullscreen:
+            screen = pygame.display.set_mode((w, h), pygame.FULLSCREEN)
+        else:
+            screen = pygame.display.set_mode((w, h))
+    pixels = np.zeros((w, h, 3))
+
+    noise = PerlinNoise(octaves, seed)
+
+    vectors = create_vectors(vector_spacing)
+    particles = create_particles(num_particles)
+
+    image_index = 0
     num_frames = 0
 
     while True:
@@ -178,41 +203,8 @@ def main():
         
         render()
 
-        if num_frames > frame_repeat and time_out:
-            print('Refreshing')
-            seed = round(random.random(), 5)
-            setup()
-            num_frames = 0
+
         num_frames += 1
-
-def setup():
-
-    global screen 
-    global clock
-    global framerate
-    global noise
-    global image_index
-    global pixels 
-
-    framerate = 60
-
-    
-
-    if render_enable:
-        pygame.init()
-        clock = pygame.time.Clock()
-        if fullscreen:
-            screen = pygame.display.set_mode((w, h), pygame.FULLSCREEN)
-        else:
-            screen = pygame.display.set_mode((w, h))
-    pixels = np.zeros((w, h, 3))
-
-    noise = PerlinNoise(octaves, seed)
-
-    vectors = create_vectors(vector_spacing)
-    particles = create_particles(num_particles)
-
-    image_index = 0
 
 def create_vectors(vector_spacing):
     global vectors
@@ -238,13 +230,12 @@ def create_particles(num_particles):
     particles = []
 
     for particle_num in range(num_particles):
-        p = particle(random.randint(0, w), random.randint(0,h))
+        p = particle(random.randint(0, w), random.randint(0,h), particle_num)
 
         particles.append(p)
 
 def save_file(pixels, image_index):
     frame = np.array(pixels, dtype=np.uint8)
-    #frame = frame.swapaxes(0, 1) 
     frame = frame.swapaxes(0, 1)
     image = Image.fromarray(frame)
     image.save(os.path.join(path, f"frame_{image_index}.png"), "PNG")
@@ -273,15 +264,18 @@ def render():
     if render_enable:
 
         pygame.surfarray.blit_array(screen, pixels)
+        surface = pygame.Surface((w, h))
 
         if show_particles:
             for p in particles:
-                pygame.draw.line(screen, p.colour, (p.x, p.y), (p.x, p.y))
+                pygame.draw.line(surface, p.colour, (p.x, p.y), (p.x, p.y))
                 #pygame.draw.circle(screen, p.colour, (p.x, p.y), 1)
         if show_vectors:
             for v in vectors:
 
-                pygame.draw.line(screen, (vector_display_intensity,vector_display_intensity,vector_display_intensity), (v.x, v.y), (v.x + v.vector_x * vector_display_mult, v.y + v.vector_y * vector_display_mult))
+                pygame.draw.line(surface, (255,255,255), (v.x, v.y), (v.x + v.vector_x * vector_display_mult, v.y + v.vector_y * vector_display_mult))
+        surface.set_alpha(display_alpha)
+        screen.blit(surface, (0,0))
         pygame.display.flip()
 
     if clear_mode:
