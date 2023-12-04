@@ -87,7 +87,7 @@ class Camera():
             scan_horizontal -= increments
             scan_angle = self.angle + self.field_of_view / 2 + increments
 
-            parametric_z_coeff = math.sin(scan_horizontal)
+            parametric_z_coeff = math.sin(scan_angle)
             for scan_num in range(self.resolution + 1):
 
                 scan_angle -= increments

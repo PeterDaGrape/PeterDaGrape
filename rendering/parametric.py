@@ -1,38 +1,32 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+ax = plt.figure().add_subplot(projection='3d')
 
+# Define the parametric functions
+def x(t):
+    return 2*t +3
 
+def y(t):
+    return 3*t + 1
 
-points = [(3,6), (7,8)]
+def z(t):
+    return 5 + t
 
+# Create an array of t values
+t = np.linspace(-2, 2, 100)
 
+# Plot the parametric curve
+ax.plot(x(t), y(t), z(t), label='parametric curve')
 
+# Plot the plane
+u, v = np.meshgrid(t, t)
+ax.plot_surface(x(u), y(v), z(u), alpha=0.5, color='green', label='parametric plane')
 
-#ax = plt.figure().add_subplot(projection='3d')
-ax = plt.figure().add_subplot()
-t = np.linspace(0, 1, 100)
+# Add labels and legend
+ax.set_xlabel('x')
+ax.set_ylabel('y')
+ax.set_zlabel('z')
 
-
-x = points[0][0] - (points[0][0] - points[1][0]) * t
-y = points[0][1] - (points[0][1] - points[1][1]) * t
-
-
-ax.plot(x, y, label='parametric curve')
-
-for point in points:
-    plt.plot(*point, marker="o", markersize=5, color="red")
-
-tcam = np.linspace(0, 10, 100)
-
-xcam = 0.6 * tcam
-ycam = 0.9 * tcam
-ax.plot(xcam, ycam, label='Camera scan')
-
-
-ax.legend()
-
-
-
-
+# Show the plot
 plt.show()

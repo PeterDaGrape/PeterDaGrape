@@ -12,9 +12,9 @@ downscale = 1
 width = 2560
 height = 1600
 
-num_particles = 100000
+num_particles = 10000
 max_magnitude = 1
-vector_spacing = 2
+vector_spacing = 4
 max_speed = 1
 start_speed = 1
 
@@ -34,7 +34,7 @@ save = True
 
 verbose_print = False
 
-
+save_period = 50
 
 pixel_strength = 0.05
 
@@ -281,7 +281,7 @@ def render():
     if clear_mode:
         pixels = np.zeros((w, h, 3))
     
-    if save and image_index % 5 == 0:
+    if save and image_index % save_period == 0:
         save_file(pixels, image_index)
     
     pixels *= brightness_multiplier
