@@ -35,6 +35,7 @@ class object:
 
         if self.type == 'static':
             return 0
+        
 
         self.move()
 
@@ -49,10 +50,19 @@ class object:
             self.on_collision = collision(self, object)
          
             try:
+
                 force = -(constant * self.mass * object.mass) / (math.sqrt(((self.x - object.x) ** 2) + ((self.y - object.y) ** 2))) ** 2
             except:
 
                 force = 0
+            if self.type == 'negative':
+                if object.type == 'negative':
+                    force *= -1
+            if self.type == 'positive':
+                if object.type == 'positive':
+                    force *= -1
+
+
             
             if self.on_collision:
                 #force *= -1
@@ -93,14 +103,21 @@ density = 10000000000
 
 objects = []
 
-objects.append(object(-1 , 'static', 50, 3 * w / 4,  h / 2, 0, 0))
-objects.append(object(-2, 'static', 50, w / 4,  h / 2, 0, 0))
+#objects.append(object(-1 , 'static', 50, 3 * w / 4,  h / 2, 0, 0))
+#objects.append(object(-2, 'static', 50, w / 4,  h / 2, 0, 0))
 #objects.append(object(0, 'dynamic', 10, w / 2,  3 * h / 4, 0, 0))
 
 drawing = False
 '''
-for i in range(50):
-    objects.append(object(i, 'dynamic', 1, random.randint(0, w), random.randint(0, h), 0, 0))
+for i in range(3):
+    objects.append(object(i, 'dynamic', 5, random.randint(0, w), random.randint(0, h), 0, 0))
+'''
+
+#objects.append(object(0, 'negative', 5, w / 2, h / 2, 0,0))
+#objects.append(object(1, 'positive', 5, w / 2 + 40, h / 2, 0,0))
+'''
+for i in range(20):
+    objects.append(object(i, random.choice(['positive', 'negative']), 2, random.randint(0, w), random.randint(0, h), 0, 0))
 '''
 
 while True:

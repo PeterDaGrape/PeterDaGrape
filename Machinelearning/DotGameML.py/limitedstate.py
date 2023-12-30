@@ -7,7 +7,7 @@ import time
 
 
 
-def defineModel(data, actionSize):
+def defineModel(actionSize):
 
     model = tf.keras.models.Sequential([
         tf.keras.layers.Dense(64, activation='relu', input_shape=(np.shape(state))),
@@ -41,22 +41,13 @@ def rewardFunc(newPlayerPos, playerPos, targetPos):
     elif newPlayerTargetDist < playerTargetDist:
         reward = maxReward / 4
     else:
-        reward = -1 * maxReward / 2
+        reward = -maxReward / 2
         
     #print(reward)
-
-
-    
-
-
 
     return reward
 
 def DQN(batchSize, replayBuffer):
-
-
-    
-    
     if len(replayBuffer) >= batchSize:
         
         batch = random.sample(replayBuffer, batchSize)
@@ -100,7 +91,7 @@ def gameState(playerPos, targetPos):
     yDist = playerPos[0] - targetPos[0]
     vectorDist = math.sqrt((playerPos[0] - targetPos[0])**2 + (playerPos[1] - targetPos[1])**2)
 
-    state = [xDist, yDist, vectorDist]
+    state = [xDist, yDist]
     return state
 
 
@@ -118,13 +109,13 @@ replayBuffer = deque(maxlen=100000)
 
 
 
-gameSize = 31
+gameSize = 6
 
 game = np.zeros((gameSize,gameSize), dtype=int)
 
 
-state = np.zeros(3, dtype=float)
-model = defineModel(state, 4)
+state = np.zeros(2, dtype=float)
+model = defineModel(4)
 global targetPos
 global playerPos
 maxReward = 20
@@ -207,7 +198,7 @@ while True:
         newState = gameState(playerPos, targetPos)
         replayBuffer.append((state, action, reward, newState, done))
 
-        if moves > 500:
+        if moves > 10:
             print('Gave up.')
             done = True
 
@@ -216,6 +207,6 @@ while True:
             break
     #print(game)
         
-    DQN(1, replayBuffer)
+    DQN(20, replayBuffer)
     print('Game', gameCounter, 'completed in', moves, 'moves, and made ', errorCount, 'mistakes')
     gameCounter += 1

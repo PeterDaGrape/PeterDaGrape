@@ -9,12 +9,12 @@ import time
 
 downscale = 1
 
-width = 2560
-height = 1600
+width = 1170
+height = 2532
 
-num_particles = 10000
+num_particles = 25000
 max_magnitude = 1
-vector_spacing = 4
+vector_spacing = 1
 max_speed = 1
 start_speed = 1
 
@@ -36,7 +36,7 @@ verbose_print = False
 
 save_period = 50
 
-pixel_strength = 0.05
+pixel_strength = 0.1
 
 
 path = '/Users/petervine/Desktop/frames'
@@ -252,7 +252,12 @@ def render():
         colour = p.colour
 
         try:
-            pixels[int(p.x)][int(p.y)] += [colour[0] * pixel_strength, colour[1] * pixel_strength, colour[2] * pixel_strength]
+
+            existing_pixel = pixels[int(p.x)][int(p.y)]
+
+            pixels[int(p.x)][int(p.y)] += ((255, 255, 255) - existing_pixel) / (255,255,255) * (colour[0] * pixel_strength, colour[1] * pixel_strength, colour[2] * pixel_strength)
+            #pixels[int(p.x)][int(p.y)] /= 255 * colour
+            #pixels[int(p.x)][int(p.y)] += [colour[0] * pixel_strength, colour[1] * pixel_strength, colour[2] * pixel_strength]
             
             for i in range(3):
                 if pixels[int(p.x)][int(p.y)][i] >= 255:

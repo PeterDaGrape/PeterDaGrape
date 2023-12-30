@@ -55,9 +55,6 @@ def save_file(pixels, image_index):
     print('Saved image:', image_index)
     image_index += 1
 
-
-
-
 class Agent:
     def __init__(self):
         
@@ -184,18 +181,12 @@ def screen_refresh(agents):
 def agent_create(num_agents):
     agents = []
 
-
     for _ in range(num_agents):
         agents.append(Agent())
     return agents
 
 def main():
     global pixels
-    global fallback
-
-
-
-
     global image_index
     image_index = 0
     print('Creating Agents...')
