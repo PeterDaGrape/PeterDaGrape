@@ -12,9 +12,6 @@ def simpleAI(paddleY, targetY):
 
 	return paddleY 
 
-
-
-
 def collision(ball, paddle_rect):
     ball_rect = pygame.Rect(ball.x - ballRad, ball.y - ballRad, ballRad*2, ballRad*2)
     if ball_rect.colliderect(paddle_rect):
@@ -49,19 +46,6 @@ global ballPosY
 
 global ballVec
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 while True:
 	acceleration = 0.001
 	simpleDifficulty = 4
@@ -78,12 +62,7 @@ while True:
 	ballVelX = (randomStart / 100) * initialVel
 	ballVelY = ((initialVel ** 2) - (((randomStart / 100) * initialVel)  ** 2))**0.5
 
-
-
 	while gameOver != True:
-		# poll for events
-
-		
 
 		# pygame.QUIT event means the user clicked X to close your window
 		for event in pygame.event.get():
@@ -144,7 +123,7 @@ while True:
 		# limits FPS to 60
 		# dt is delta time in seconds since last frame, used for framerate-
 		# independent physics.
-		#dt = clock.tick(60) / 1000
+		dt = clock.tick(60) / 1000
 
 		ballVelX = ballVelX + acceleration * ballVelX
 		ballVelY = ballVelY + acceleration * ballVelY
