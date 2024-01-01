@@ -38,14 +38,15 @@ def collision(ball, paddle_rect):
         # No collision detected
         return False
 
-resolution = (1280, 720)
+resolution = (640, 360) 
+
 accelerationDecay = 0.9995
 global simpleDifficulty
 
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode(resolution)
 clock = pygame.time.Clock()
 
 
@@ -230,7 +231,7 @@ while True:
 
 
 
-        #pygame.display.flip()
+        pygame.display.flip()
 
         #clock.tick(60)
 
