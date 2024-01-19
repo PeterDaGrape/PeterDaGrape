@@ -14,6 +14,8 @@ def capture_screenshot():
 
 
 
+Image.open(capture_screenshot())
+
 
 
 # Grab top-left rectangle with size 640px wide by 480px tall
@@ -24,7 +26,7 @@ for i in range(time_passed):
     time.sleep(1)
 
 
-
+'''
 while True:
 
     
@@ -55,4 +57,4 @@ while True:
  
 
 
-       
+       '''

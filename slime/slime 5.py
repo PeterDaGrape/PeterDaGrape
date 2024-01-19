@@ -4,7 +4,7 @@ import math
 from PIL import Image
 import os
 
-num_agents = 1000
+num_agents = 10000
 frame_rate = 60
 speed_var = 0
 w = 2560
@@ -74,13 +74,12 @@ class Agent:
 
         self.colour = colours[random.randint(0, len(colours)-1)]
 
-
         self.vel_x = agent_speed * math.sin(self.agent_angle)
         self.vel_y = agent_speed * math.cos(self.agent_angle)
     
-    def update(self):
+    def update(self, pixels):
         self.collision()
-        self.brain()
+        self.brain(pixels)
         self.move()
 
     def move(self):
@@ -107,8 +106,7 @@ class Agent:
             self.y = 1
             self.agent_angle = math.radians(random.randint(90, 270))
 
-    def brain(self):
-        global pixels
+    def brain(self, pixels):
         scent_strengths = []
         angles = self.agent_angle, self.agent_angle - sensor_angle, self.agent_angle + sensor_angle
         for probe_angle in angles:
@@ -122,6 +120,7 @@ class Agent:
                 distance = math.sqrt((probe_pixel[0] - self.colour[0])**2 + (probe_pixel[1] - self.colour[1])**2 + (probe_pixel[2] - self.colour[2])**2)
                 score = -distance
 
+            #pixels[probe_position[0], probe_position[1]] = (255,255,255)
 
             scent_strengths.append(score)
         probe_forward = scent_strengths[0]
@@ -138,8 +137,7 @@ class Agent:
 
             self.agent_angle += random.random() * max_turn
         
-def screen_refresh(agents):
-    global pixels
+def screen_refresh(agents, image_index, pixels):
     if not fallback and render:
         for event in pygame.event.get():
     
@@ -157,8 +155,7 @@ def screen_refresh(agents):
     
 
     for agent in agents:
-        
-
+    
         try:
             pixels[int(agent.x), int(agent.y)] = agent.colour
 
@@ -174,7 +171,10 @@ def screen_refresh(agents):
         #print(clock.get_fps())
     if save:
         save_file(pixels, image_index)
+
+
     pixels = cv2.blur(pixels, (3, 3))
+
     return pixels
 
 def agent_create(num_agents):
@@ -184,21 +184,18 @@ def agent_create(num_agents):
         agents.append(Agent())
     return agents
 
-def main():
-    global pixels
-    global image_index
+def main(pixels):
+
     image_index = 0
     print('Creating Agents...')
     
     agents = agent_create(num_agents)
     print('Created Agents, starting...')
-
     while True:
 
         for agent in agents:
-            agent.update()
-
-        pixels = screen_refresh(agents)
+            agent.update(pixels)
+        pixels = screen_refresh(agents, image_index, pixels)
         image_index += 1
 
 if __name__ == '__main__':
@@ -211,6 +208,8 @@ if __name__ == '__main__':
     except:
         print('Recommended modules not found... ')
         fallback = True
+    pixels = np.zeros((w, h, 3))
+
 
     if not fallback and render:
         
@@ -222,4 +221,4 @@ if __name__ == '__main__':
         else:
             screen = pygame.display.set_mode((w, h))
         surface = pygame.surfarray.make_surface(pixels)
-    main()
+    main(pixels)

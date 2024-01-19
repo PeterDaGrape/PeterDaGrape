@@ -53,10 +53,6 @@ def visible_map():
     global covered_map
     covered_map = numpy.full(fill_value= 10, shape=resolution, dtype=int)
     
-
-
-
-
 def game_loop():
     while True:
         print(covered_map)
