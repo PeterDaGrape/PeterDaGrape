@@ -42,7 +42,6 @@ render = True
 save = False
 fullscreen = False
 
-pixels = np.zeros((w, h, 3))
 
 sensor_distance = int(sensor_distance / downscale)
 
